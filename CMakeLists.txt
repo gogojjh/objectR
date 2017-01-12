@@ -8,7 +8,6 @@ set( CMAKE_CXX_FLAGS "-std=c++11 -Wall -O2 -march=native" )
 set( objectR_SOURCE_FILES 
    ${PROJECT_SOURCE_DIR}/src/DetectBlueCircle.cpp
    ${PROJECT_SOURCE_DIR}/src/DetectMarker.cpp
-   ${PROJECT_SOURCE_DIR}/src/ImageReader.cpp
    ${PROJECT_SOURCE_DIR}/src/setting.cpp)
 
 #aux_source_directory(. dir_srcs) #aux_source_directory(<dir> <variable>)
