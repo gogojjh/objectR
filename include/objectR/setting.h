@@ -1,15 +1,13 @@
-/*
- * 定义整个工程需要的宏
- */
-
-#ifndef BASE_H
-#define BASE_H
+#ifndef SETTING_H
+#define SETTING_H
 
 #include <iostream>
 #include <string>
 #include <math.h>
 #include <stdlib.h>
-#include <stdio.h>
+#include <queue>
+#include <vector>
+
 #include "opencv2/opencv.hpp"
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -17,8 +15,6 @@
 #include "opencv2/flann/flann.hpp"
 #include "opencv2/features2d/features2d.hpp"
 #include "opencv2/legacy/legacy.hpp"
-#include "queue"
-#include "vector"
 
 #define UP 1
 #define DOWN -1
@@ -30,7 +26,7 @@
 #define NEAR_OBJECT 50
 
 #define IMAGE_SIZE_SCALE 5
-#define HsvType int
+#define ChannelType int
 #define HSV   0
 #define HSV_H 1
 #define HSV_S 2
@@ -40,12 +36,20 @@
 #define BGR_G 6
 #define BGR_R 7
 
-using namespace std;
-using namespace cv;
+extern float image_sizeRatio;
+extern float blueCircle_thresholdRatio;
+extern float marker_thresholdRatio;
+	
+namespace objectR
+{	
+	cv::Mat imageChannelSplit(cv::Mat img, ChannelType key);
 
-Mat colorConversion(Mat img, HsvType imgtype);
+	// get the position of destination
+	void getPosition(const cv::Point2f p1, const cv::Point2f p2, cv::Point2f &ans); 		
+}
+#endif // SETTING_H
 
-// get the position of destination
-void getPosition(const Point2f p1, const Point2f p2, Point2f &ans); //center, goal, minG
 
-#endif // BASE_H
+
+
+

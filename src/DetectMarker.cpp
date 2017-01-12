@@ -1,6 +1,7 @@
-#include "objectR/base.h"
-#include "objectR/markerdetect.h"
+#include "objectR/setting.h"
+#include "objectR/DetectMarker.h"
 
+/*
 void markerdetect(const Mat src,
                 Point2f &minG,
                 float &minD,
@@ -12,12 +13,6 @@ void markerdetect(const Mat src,
     decectMarkerContour(src, minG, minD, minF, result);
 }
 
-/*
- * 提取二维码的黑色进行识别
- * 图像处理的步骤:
- * 去除图片的红色分量(红色滤波) -> 腐蚀操作 -> canny边缘提取 -> 寻找连通区域 ->
- * 寻找二维码的连通区域(像素面积>5000; 区域为凸多边形) -> 存储四个端点的
- */
 void decectMarkerContour(const Mat src, Point2f &minG, float &minD, bool &minF, Mat &result)
 {
     Mat img_h, img_threshold, morph_img;
@@ -117,9 +112,6 @@ void decectMarkerContour(const Mat src, Point2f &minG, float &minD, bool &minF, 
     circle(result, goal, 3, Scalar(0,0,255), 2);
 }
 
-/*
- * 计算相机相对于二维码的位姿, 解决PnP问题的参考代码
- */
 Mat markerPosition(Mat &img, Point2f* pointsIn)
 {
 //    Mat img_out(400,400,CV_8UC1,Scalar(0,0,0));
@@ -169,6 +161,7 @@ Mat markerPosition(Mat &img, Point2f* pointsIn)
     // imshow("img_out",img_out);
     return rotat_vec;
 }
+*/
 
 /*
 Focal Length:          fc = [ 1760.80462   1760.28449 ] +/- [ 5.65463   5.71223 ]

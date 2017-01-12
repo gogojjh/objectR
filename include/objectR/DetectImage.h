@@ -1,16 +1,15 @@
 #ifndef DETECTIMAGE_H
 #define DETECTIMAGE_H
 
-namespace ObjectR
+namespace objectR
 {
 	class DetectImage
 	{
 	public:
-		DetectImage();
-		~DetectImage();
-		virtual void findObject();		
-	};
-	
+		DetectImage() {}
+		~DetectImage() {}
+		virtual void findObject() {}
+	};	
 }
 
 
