@@ -58,12 +58,6 @@ map
 AprilTags/TagDetection.h
 ../../apriltags/AprilTags/AprilTags/TagDetection.h
 
-../include/objectR/DetectBlueCircle.h
-objectR/setting.h
-../include/objectR/objectR/setting.h
-objectR/DetectImage.h
-../include/objectR/objectR/DetectImage.h
-
 ../include/objectR/DetectImage.h
 
 ../include/objectR/DetectMarker.h
@@ -124,21 +118,11 @@ opencv2/features2d/features2d.hpp
 opencv2/legacy/legacy.hpp
 ../include/objectR/opencv2/legacy/legacy.hpp
 
-/home/chiao/documents/objectR/src/DetectBlueCircle.cpp
-objectR/setting.h
-/home/chiao/documents/objectR/src/objectR/setting.h
-objectR/DetectBlueCircle.h
-/home/chiao/documents/objectR/src/objectR/DetectBlueCircle.h
-
 /home/chiao/documents/objectR/src/DetectMarker.cpp
 objectR/setting.h
 /home/chiao/documents/objectR/src/objectR/setting.h
 objectR/DetectMarker.h
 /home/chiao/documents/objectR/src/objectR/DetectMarker.h
-
-/home/chiao/documents/objectR/src/setting.cpp
-objectR/setting.h
-/home/chiao/documents/objectR/src/objectR/setting.h
 
 /usr/include/eigen3/Eigen/Cholesky
 Core

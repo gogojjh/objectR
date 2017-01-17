@@ -27,13 +27,13 @@ namespace objectR
 	class DetectMarker : public DetectImage
 	{
 	public:
-		DetectMarker();
+		DetectMarker() {}
 		DetectMarker(bool f, Mat img)
 		{
 			img_ = img.clone();
 			f_ = f;
 		}
-		~DetectMarker();
+		~DetectMarker() {}
 		virtual void findObject();		
 		void printResult();
 		
@@ -57,7 +57,7 @@ namespace objectR
 		bool timing;
 		
 		Marker();
-		~Marker();
+		~Marker() {}
 		void initialization(const Mat img);
 		void processImage(Mat &img, 
 							vector<Point2f> &markerCenter, 

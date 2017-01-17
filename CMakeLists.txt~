@@ -26,9 +26,11 @@ include_directories( ${OPENCV_INCLUDE_DIR}
 add_library(libobjectR ${objectR_SOURCE_FILES})
 
 #添加需要的库的路径
-link_libraries( ${apriltags_SOURCE_DIR}/build )
+link_directories( ${apriltags_SOURCE_DIR}/build/lib )
 
-target_link_libraries( ${PROJECT_NAME} ${OpenCV_LIBS} libobjectR libapriltags_shared.so )
+#link_libraries( "/home/chiao/documents/objectR/apriltags/build/lib/libapriltags.a" )
+
+target_link_libraries( ${PROJECT_NAME} ${OpenCV_LIBS} libobjectR apriltags )
 
 
 

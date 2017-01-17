@@ -47,7 +47,7 @@ namespace objectR
 		
 		void executeMarker()
 		{
-			marker = new DetectMarker(object_find, img_processed);
+			marker = new DetectMarker(object_find, img_processed); // 识别二维码操作
 			marker->findObject();
 			marker->printResult();
 			object_find = marker->f_;
@@ -57,11 +57,13 @@ namespace objectR
 		
 		void showOriginal()
 		{
+			namedWindow("Original image", CV_WINDOW_NORMAL);
 			imshow("Original image", img_original);
 		}
 		
 		void showResult()
 		{
+			namedWindow("Processed image", CV_WINDOW_NORMAL);
 			imshow("Processed image", img_processed);
 		}
 		

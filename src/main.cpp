@@ -5,7 +5,7 @@ using namespace objectR;
 
 int main()
 {
-        ImageReader *reader = new ImageReader("/home/chiao/documents/objectR/image/apriltags.jpg");
+        ImageReader *reader = new ImageReader("../image/destination.jpg");
 	reader->changeImageSize();
 	reader->executeMarker();
         if ( reader->object_find )

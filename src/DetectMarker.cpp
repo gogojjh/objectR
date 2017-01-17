@@ -49,11 +49,14 @@ namespace objectR
 	void DetectMarker::printResult()
 	{
 		int l = this->markerCenters_.size(); 
+		if (l==0) 
+			this->f_ = false;
+		cout << "If Find object = " << f_ << endl;
 		if (l >1)
 		{
 			for (int i=0; i<l; i++)
 			{
-				cout << "  distance=" << this->translations_[i].norm()
+				cout << "distance=" << this->translations_[i].norm()
 					<< "m, x=" << this->translations_[i](0)
 					<< ", y=" << this->translations_[i](1)
 					<< ", z=" << this->translations_[i](2)
