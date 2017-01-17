@@ -1,2 +1,0 @@
-/usr/bin/ar cr liblibobjectR.a  CMakeFiles/libobjectR.dir/src/DetectBlueCircle.cpp.o CMakeFiles/libobjectR.dir/src/DetectMarker.cpp.o CMakeFiles/libobjectR.dir/src/setting.cpp.o
-/usr/bin/ranlib liblibobjectR.a

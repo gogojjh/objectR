@@ -1,2 +1,0 @@
-/home/chiao/documents/objectR/build/CMakeFiles/libobjectR.dir
-/home/chiao/documents/objectR/build/CMakeFiles/objectR.dir
