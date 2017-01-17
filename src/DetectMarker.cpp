@@ -46,7 +46,7 @@ namespace objectR
 							this->eulers_);
 	}
 	
-	void DetectMarker::printResult()
+	void DetectMarker::printResult() // 输出结果
 	{
 		int l = this->markerCenters_.size(); 
 		if (l==0) 
@@ -75,11 +75,11 @@ namespace objectR
 				 tagDetector_(nullptr),
 				 tagCodes_(AprilTags::tagCodes16h5),
 				 timing(true),
-				 tagSize_(0.166),
-				 fx_(600),
-				 fy_(600),
-				 cx_(320),
-				 cy_(240)
+				 tagSize_(setting_tagSize),
+				 fx_(setting_fx),
+				 fy_(setting_fy),
+				 cx_(setting_cx),
+				 cy_(setting_cy)
 				 {}		 
 	
 	void Marker::initialization(const Mat img)

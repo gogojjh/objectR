@@ -6,6 +6,13 @@ using namespace cv;
 float image_sizeRatio = 0.5;
 float blueCircle_thresholdRatio = 0.066;
 float marker_thresholdRatio = 0.066;
+
+float setting_tagSize = 0.166;
+
+float setting_fx = 600;
+float setting_fy = 600;
+float setting_cx = 320;
+float setting_cy = 240;
 	
 namespace objectR 
 {
