@@ -1,172 +1,168 @@
 #include "objectR/setting.h"
 #include "objectR/DetectMarker.h"
 
-/*
-void markerdetect(const Mat src,
-                Point2f &minG,
-                float &minD,
-                bool &minF,
-                Mat &result,
-                Mat &mask)
-{
-    src.copyTo(result);
-    decectMarkerContour(src, minG, minD, minF, result);
+namespace objectR 
+{	
+	double tic()
+	{
+		struct timeval t;
+		gettimeofday(&t, nullptr);
+		return ((double)t.tv_sec + ((double)t.tv_usec) / 1000000);
+	}
+	
+	/**
+	* Normalize angle to be within the interval [-pi,pi].
+	*/
+	inline double standardRad(double t)
+ 	{
+		if (t >= 0.)
+		{
+			t = fmod(t+PI, 2*PI) - PI;
+		} else 
+		{
+			t = fmod(t-PI, -2*PI) + PI;
+		}
+		return t;
+	}
+	
+	void wRo_to_euler(const Eigen::Matrix3d &wRo, double &yaw, double &pitch, double &roll)
+	{
+		yaw =standardRad(atan2(wRo(1,0), wRo(0,0)));
+		double c = cos(yaw);
+		double s = sin(yaw);
+		pitch = standardRad(atan2(-wRo(2,0), wRo(0,0)*c + wRo(1,0)*s));
+		roll  = standardRad(atan2(wRo(0,2)*s - wRo(1,2)*c, -wRo(0,1)*s + wRo(1,1)*c));
+	}
+	
+	// DetectMarker 的定义 ********************
+	
+	void DetectMarker::findObject()
+	{
+		Marker marker;
+		marker.initialization(this->img_);
+		marker.processImage(this->img_, 
+							this->markerCenters_, 
+							this->translations_, 
+							this->eulers_);
+	}
+	
+	void DetectMarker::printResult()
+	{
+		int l = this->markerCenters_.size(); 
+		if (l >1)
+		{
+			for (int i=0; i<l; i++)
+			{
+				cout << "  distance=" << this->translations_[i].norm()
+					<< "m, x=" << this->translations_[i](0)
+					<< ", y=" << this->translations_[i](1)
+					<< ", z=" << this->translations_[i](2)
+					<< ", yaw=" << this->eulers_[i][0]
+					<< ", pitch=" << this->eulers_[i][1]
+					<< ", roll=" << this->eulers_[i][2]
+					<< endl;
+			}
+			this->f_ = true;
+		}	
+	}
+	
+	// Marker 的定义 ****************************
+	
+	Marker::Marker():
+				 tagDetector_(nullptr),
+				 tagCodes_(AprilTags::tagCodes16h5),
+				 timing(true),
+				 tagSize_(0.166),
+				 fx_(600),
+				 fy_(600),
+				 cx_(320),
+				 cy_(240)
+				 {}		 
+	
+	void Marker::initialization(const Mat img)
+	{
+		this->width_ = img.cols;
+		this->height_ = img.rows;
+		this->tagDetector_ = new AprilTags::TagDetector( this->tagCodes_ );
+	}
+	
+	void Marker::processImage(Mat &img, 
+							vector<Point2f> &markerCenter, 
+							vector<Eigen::Vector3d> &translations, 
+							vector<vector<double>> &eulers)
+	{
+		// RGB图转成灰度图
+		Mat img_gray;
+		cvtColor(img, img_gray, CV_BGR2GRAY);
+		
+		double t0;
+		if (this->timing)
+			t0 = tic();
+		
+		// 提取Apriltags, 返回detection
+		vector<AprilTags::TagDetection> detections = this->tagDetector_->extractTags(img_gray);
+		if (this->timing)
+		{
+			double dt = tic() - t0;
+			cout << "Extracting tags took " << dt << " seconds." << endl;
+		}
+		
+		for (int i=0; i<detections.size(); i++)
+		{
+			// 绘制Apriltags
+			detections[i].draw(img);
+			
+			// 存储每个Apriltags的中心
+			Point2f center(detections[i].cxy.first, detections[i].cxy.second);
+			markerCenter.push_back(center);
+			
+			// 计算并存储每个Apriltags计算出的相机位姿
+			Eigen::Vector3d translation;
+			Eigen::Matrix3d rotation;
+			detections[i].getRelativeTranslationRotation(this->tagSize_, this->fx_, this->fy_, this->cx_, this->cy_,
+														translation, rotation);
+			translations.push_back(translation);
+			
+			// 从旋转矩阵转换成旋转向量(李群转换成李代数),便于查看
+			Eigen::Matrix3d F;
+			F <<
+				1, 0, 0,
+				0, -1, 0,
+				0, 0, 1;
+			Eigen::Matrix3d fixed_rot = F*rotation;
+			double yaw, pitch, roll;
+			wRo_to_euler(fixed_rot, yaw, pitch, roll);
+			vector<double> e;
+			e.push_back(yaw);
+			e.push_back(pitch);
+			e.push_back(roll);
+			eulers.push_back(e);		
+		}		
+	}
 }
 
-void decectMarkerContour(const Mat src, Point2f &minG, float &minD, bool &minF, Mat &result)
-{
-    Mat img_h, img_threshold, morph_img;
-    Mat img_canny(src.rows, src.cols,CV_8UC3,Scalar(0,0,0));
 
-    img_h = colorConversion(src, BGR_R);
-    threshold(img_h, img_threshold,60,255,1);
 
-    Mat element = getStructuringElement(MORPH_RECT,Size(3,3));
-    morphologyEx(img_threshold,img_threshold,MORPH_ERODE,element);
 
-    Canny(img_threshold,img_canny,30,90);
 
-    vector<vector<Point> > contours;
-    vector<Point> approxCurve;
-    vector<Vec4i> hierarchy;
-    bool longEdge = 1;
-    float markerArea = 0;
-    bool sign_bigger = false;
-    bool sign_small = false;
-    Point2f pointsIn[4]={Point2f(0,0)};
-    Point2f approxCenter(0,0);
-    Point2f goal(0,0);
-    Point2f center(src.cols/2, src.rows/2);
 
-    findContours(img_canny, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
-    approxCurve.resize(contours.size());
 
-    for(unsigned int i=0; i<contours.size();i++)
-    {
-        float contour_area=contourArea(contours[i]);
-        if(contour_area>5000)
-        {
-            markerArea = contour_area;
-            // 多边形逼近
-            approxPolyDP(contours[i], approxCurve, double(contours[i].size()) * 0.05, true);
-            // 判断连通区域是否为凸多边形
-            if (isContourConvex(Mat(approxCurve)))
-            {
-                sign_bigger = true;
-                int min_x = INT_MAX;
-                int min_index = 0;
-                // 计算中心坐标
-                for(int j=0; j<4; j++)
-                {
-                    if(sqrt(approxCurve[j].x*approxCurve[j].x+approxCurve[j].y*approxCurve[j].y) < min_x)
-                    {
-                        min_x = sqrt(approxCurve[j].x*approxCurve[j].x+approxCurve[j].y*approxCurve[j].y);
-                        min_index = j;
-                    }
-                }
-                approxCenter.x = (approxCurve[1].x + approxCurve[3].x) / 2.0;
-                approxCenter.y = (approxCurve[1].y + approxCurve[3].y) / 2.0;
 
-                if (sqrt(pow(approxCenter.x - src.cols/2, 2.0) + pow(approxCenter.y - src.rows/2, 2.0)) < minD)
-                {
-                    getPosition(center, approxCenter, minG);
-                    minD = sqrt(pow(approxCenter.x - src.cols/2, 2.0) + pow(approxCenter.y - src.rows/2, 2.0));
-                    goal = approxCenter;
-                }
 
-                // 存储四个端点的坐标
-                if(min_index == 0 )
-                {
-                    for(int j=0;j<4 ;j++)
-                    {
-                        pointsIn[j] = approxCurve[j];
-                        circle(result,Point(pointsIn[j].x,pointsIn[j].y),3,Scalar(0,0,255));
-                    }
-                }
-                else
-                {
-                    int array[] = {1, 2, 3, 0, 1, 2, 3};
-                    size_t count=sizeof(array)/sizeof(int);
-                    vector<int> tmp(array, array+count);
-                    vector<int>::iterator tmp_itr = tmp.begin();
-                    int k=0;
-                    tmp_itr = find(tmp.begin(),tmp.end(),min_index);
 
-                    for(;min_index!=0 && tmp_itr!=tmp.end() && k!=4;tmp_itr++)
-                    {
-                        pointsIn[k++] = approxCurve[*tmp_itr];
-                        circle(result,Point(pointsIn[k-1].x,pointsIn[k-1].y),8,Scalar(0,0,255));
-                    }
-                }
-            }
-        }
-        else if(sign_bigger = true && markerArea != 0 && 0.01*markerArea < contour_area && contour_area < 0.03*markerArea)
-        {
-            sign_small = true;
-        }
-        if(sign_bigger == true && sign_small == true)
-        {
-            Mat move_pos = markerPosition(img_h, pointsIn);
-        }
-    }
-    circle(result, goal, 3, Scalar(0,0,255), 2);
-}
 
-Mat markerPosition(Mat &img, Point2f* pointsIn)
-{
-//    Mat img_out(400,400,CV_8UC1,Scalar(0,0,0));
-//    Point2f pointsRes[4];
-//    pointsRes[0] = Point2f(0, 0);
-//    pointsRes[1] = Point2f(400 - 1, 0);
-//    pointsRes[2] = Point2f(400 - 1, 400 - 1);
-//    pointsRes[3] = Point2f(0, 400 - 1);
 
-    // Size of the Marker, a standard marker
-    vector<Point3f> objectPoints;
-    objectPoints.push_back(Point3f(0,0,0));
-    objectPoints.push_back(Point3f(410,0,0));
-    objectPoints.push_back(Point3f(410,410,0));
-    objectPoints.push_back(Point3f(0,410,0));
 
-    vector<Point2f> imagePoints;
-    for(int i=0;i<4;i++)
-    {
-        imagePoints.push_back(Point2f(pointsIn[i].x,pointsIn[i].y));
-    }
 
-    // 相机内参
-    float tmp1[3][3] = {{1760.80462, 0, 929.95610}, {0, 1760.28449, 535.82561}, {0, 0, 1}};
-    Mat cameMatrix(3,3,CV_32FC1, tmp1);
 
-    // 畸变系数
-    float tmp2[5] = {-0.41624, 0.23446, -0.00058, 0.00086, 0};
-    Mat distCoeffs(1,5,CV_32F,tmp2);
 
-    Mat rotat_vec(3,3,CV_32F), trans_vec(3,3,CV_32F);
 
-    // PnP问题
-    solvePnP(objectPoints, imagePoints, cameMatrix, distCoeffs, rotat_vec, trans_vec);
 
-    // 变换矩阵
-    //Mat transformMatrix = getPerspectiveTransform(pointsIn, pointsRes);
-    //cout << transformMatrix << endl;
 
-    // 输出旋转和平移矩阵
-    // warpPerspective(img, img_out, transformMatrix, Size(400,400), cv::INTER_NEAREST);
-    //  cout<<rotat_vec.col(0).row(0)<<endl;
-    //  cout<<rotat_vec.at<double>(0,0)<<endl;
-    //  cout<<"rotat_vec:"<<rotat_vec<<endl;
-    //  cout<<"trans_vec:"<<trans_vec<<endl;
-    // namedWindow("img_out");
-    // imshow("img_out",img_out);
-    return rotat_vec;
-}
-*/
 
-/*
-Focal Length:          fc = [ 1760.80462   1760.28449 ] +/- [ 5.65463   5.71223 ]
-Principal point:       cc = [ 926.95610   535.82561 ] +/- [ 6.68057   5.33905 ]
-Skew:             alpha_c = [ 0.00000 ] +/- [ 0.00000  ]   => angle of pixel axes = 90.00000 +/- 0.00000 degrees
-Distortion:            kc = [ -0.41624   0.23446   -0.00058   0.00086  0.00000 ] +/- [ 0.00756   0.03623   0.00048   0.00093  0.00000 ]
-Pixel error:          err = [ 0.24291   0.15701 ]
-*/
+
+
+
+
+
+

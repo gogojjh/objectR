@@ -3,10 +3,10 @@
 
 #include <iostream>
 #include <string>
-#include <math.h>
 #include <stdlib.h>
 #include <queue>
 #include <vector>
+#include <cmath>
 
 #include "opencv2/opencv.hpp"
 #include "opencv2/core/core.hpp"
@@ -16,16 +16,7 @@
 #include "opencv2/features2d/features2d.hpp"
 #include "opencv2/legacy/legacy.hpp"
 
-#define UP 1
-#define DOWN -1
-#define LEFT -2
-#define RIGHT 2
 #define PI 3.14159265358979323846
-#define IMAGE_SIZE_COL 2
-#define IMAGE_SIZE_ROW 2
-#define NEAR_OBJECT 50
-
-#define IMAGE_SIZE_SCALE 5
 #define ChannelType int
 #define HSV   0
 #define HSV_H 1

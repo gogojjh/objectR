@@ -65,6 +65,13 @@ namespace objectR
 		Point2f center(img_.cols/2, img_.rows/2);
 		circle(img_, c_, 3, Scalar(0,0,255), 2, 8, 0);
 	}
+	
+	void DetectBlueCircle::printResult()
+	{
+		cout << "If Find object = " << f_ << endl
+			<< "x = " << c_.x << " y = " << c_.y << endl;
+	}
+
 }
 
 

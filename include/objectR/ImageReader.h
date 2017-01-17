@@ -20,14 +20,13 @@ namespace objectR
 		{
 			img_original = imread(imagename);
 			object_find = false;
-			object_center = Point2f(-1, -1);
 		}
 			
 		~ImageReader();
 		
-		void changeImageSize(float r)
+		void changeImageSize()
 		{
-			resize(img_original, img_original, Size(img_original.cols*r, img_original.rows*r));
+			resize(img_original, img_processed, Size(img_original.cols*image_sizeRatio, img_original.rows*image_sizeRatio));
 		}
 		
 		void getImageSize(int &w, int &h)
@@ -38,17 +37,22 @@ namespace objectR
 		
 		void executeBlueCircle()
 		{
-			bluecircle = new DetectBlueCircle(object_find, object_center, img_original);
+			bluecircle = new DetectBlueCircle(object_find, img_processed);
 			bluecircle->findObject();
+			bluecircle->printResult();
 			object_find = bluecircle->f_;
-			object_center = bluecircle->c_;
-			img_processed = bluecircle->img_;
+			object_center.push_back(bluecircle->c_);
+			img_processed = bluecircle->img_.clone();
 		}
 		
 		void executeMarker()
 		{
-			//marker = new DetectMarker(img_processed,  object_find, object_center);
-			//marker->findObject();
+			marker = new DetectMarker(object_find, img_processed);
+			marker->findObject();
+			marker->printResult();
+			object_find = marker->f_;
+			object_center = marker->markerCenters_;
+			img_processed = marker->img_.clone();
 		}
 		
 		void showOriginal()
@@ -61,13 +65,7 @@ namespace objectR
 			imshow("Processed image", img_processed);
 		}
 		
-		void printResult()
-		{
-			cout << "If Find object = " << object_find << endl
-				 << "Object center = x: " << object_center.x << " y: " << object_center.y << endl;
-			waitKey(0);
-		}
-		
+	
 		Mat getOriginal()
 		{
 			return img_original;
@@ -77,7 +75,7 @@ namespace objectR
 		DetectMarker *marker;
 		
 		bool object_find;
-		Point2f object_center;
+		vector<Point2f> object_center;
 		
 	private:
 		Mat img_original, img_processed;

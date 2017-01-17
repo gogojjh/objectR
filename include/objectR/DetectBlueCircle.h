@@ -14,16 +14,17 @@ namespace objectR
 	public:
 		DetectBlueCircle() {}
 		
-		DetectBlueCircle(bool f, Point2f c, Mat img)
+		DetectBlueCircle(bool f, Mat img)
 		{
 			img_ = img.clone();
 			f_ = f;
-			c_.x = c.x; c_.y = c.y;
+			c_.x = -1; c_.y = -1;
 		}
 			
 		~DetectBlueCircle() {}
 		
 		virtual void findObject();	
+		void printResult();
 		
 		Mat img_;
 		bool f_;
